@@ -28,8 +28,6 @@ Eight minutes later there was an installable font and a first specimen page.
 
 **The first specimen page** was a continuous-form printout: green-bar paper, tractor-feed holes, blue-violet ribbon ink, and a teal phosphor screen in dark mode. It had a title that follows the pointer, a type tester, a design-space matrix, a grid inspector and an LED departures board with four lamp colours.
 
-**17:41** sundyme asked for "another version that shows your own taste". That line became a different typeface, [Punctum Moderne](https://github.com/sundyme/punctum-moderne), a dot-matrix Didone. This repository continues the first version.
-
 <br>
 
 ## 2 · The page, rebuilt <sub>4 October</sub>
@@ -100,7 +98,7 @@ This day was spent on 35 LIGHTS. Every note pointed at a timestamp, so every rou
 - **15:40** sundyme missed the earlier flap and slide sounds and found the final transition abrupt → the sounds came back and the ending transition was rebuilt.
 - **17:31** "The front half moves too slowly; it feels like waiting" → the name reveal, the 16-number countdown and the weights were compressed, from 54 s to 42 s. The music was re-cut on bar lines.
 
-**21:27** sundyme was preparing a third post on X for the specimen demo, and there was a mismatch: the video shows this page, but the public repository and site at the time belonged to Punctum Moderne. Hence this repository and [sundyme.github.io/punctum](https://sundyme.github.io/punctum/).
+**21:27** sundyme was preparing a third post on X for the specimen demo. So that a reader who follows the link lands on the page from the video and can download the font, this repository and [sundyme.github.io/punctum](https://sundyme.github.io/punctum/) were set up.
 
 <br>
 

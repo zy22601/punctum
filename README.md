@@ -104,7 +104,6 @@ fonts/                         构建好的字体文件
 | --- | --- | --- | --- |
 | [Doto](https://fonts.google.com/specimen/Doto) | Óliver Lalan · 2024 · OFL | 可变点阵；`wght` 控制点的大小，`ROND` 控制点的圆和方 | 思路最接近。Punctum 用 5 × 9 网格（大写占 5 × 7），Doto 用 6 × 10；Punctum 的字形逐字写成，字体文件由本仓库脚本生成，没有使用 Doto 的任何文件 |
 | [Powerhouse Punctum](https://matterofsorts.com/) | Vincent Chan · 2023 · Powerhouse 博物馆定制 | 同名；同样来自打孔卡和点阵打印机 | 两者互不相关 |
-| [Punctum Moderne](https://github.com/sundyme/punctum-moderne) | 姊妹项目 · 2026 | 同一天从同一个起点出发 | 点阵 Didone：点的大小随笔画粗细变化，有斜体和花式大写 |
 
 5 × 7 网格的自由度很小，许多大写字母难免与几十年来的 LCD 和打印机字库相似，这是这种网格的共同语汇。
 

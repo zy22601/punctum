@@ -104,7 +104,6 @@ Building letters from dots is an old idea. Punctum is not the first dot-matrix t
 | --- | --- | --- | --- |
 | [Doto](https://fonts.google.com/specimen/Doto) | Óliver Lalan · 2024 · OFL | Variable dot matrix; `wght` sets dot size, `ROND` sets round versus square | The closest idea. Punctum uses a 5 × 9 grid (capitals on 5 × 7), Doto 6 × 10. Punctum's glyphs were drawn one by one and its files are built by this repository's scripts; no Doto files were used |
 | [Powerhouse Punctum](https://matterofsorts.com/) | Vincent Chan · 2023 · custom for the Powerhouse museum | Same name; also drawn from punch cards and dot-matrix printers | Unrelated |
-| [Punctum Moderne](https://github.com/sundyme/punctum-moderne) | Sister project · 2026 | Started from the same first prompt on the same day | A dot-matrix Didone: dot size follows stroke contrast, with italics and swash capitals |
 
 A 5 × 7 grid leaves little room, so many capitals inevitably resemble decades of LCD and printer fonts. That is the shared vocabulary of the grid.
 
