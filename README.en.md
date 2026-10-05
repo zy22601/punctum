@@ -60,6 +60,8 @@ Three short films. Picture and sound are generated in code. Click a still to pla
 | --- | --- | --- |
 | **Specimen** · site demo · 1:06 | **35 Lights** · the type as score · 0:42 | **Premiere** · WebGL2 dot light · 1:20 |
 
+There is also a 92-second **Launch** cut and three social formats of 35 Lights (16:9, 9:16, 2:3). Sources for all five films are in [films/](films); 1080p masters are attached to [Releases · films-2026-10](https://github.com/sundyme/punctum/releases/tag/films-2026-10).
+
 <br>
 
 ## Two pages
@@ -91,6 +93,7 @@ src/specimen.template.html     final specimen page template
 site/first.html                first specimen page, kept as it was on 2026-10-03
 site/build.py                  builds docs/
 docs/                          GitHub Pages site, with films and images
+films/                         sources for the five films (picture engines, score scripts)
 fonts/                         built font files
 ```
 

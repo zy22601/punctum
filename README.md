@@ -60,6 +60,8 @@
 | --- | --- | --- |
 | **Specimen** · 网页演示 · 1:06 | **35 Lights** · 字体即乐谱 · 0:42 | **Premiere** · WebGL2 点光 · 1:20 |
 
+另有 92 秒的合剪 **Launch** 和 35 Lights 的三种社媒画幅（16:9、9:16、2:3）。五支影片的源码在 [films/](films)，1080p 原片在 [Releases · films-2026-10](https://github.com/sundyme/punctum/releases/tag/films-2026-10)。
+
 <br>
 
 ## 第一版和最终版 <sub>Two pages</sub>
@@ -91,6 +93,7 @@ src/specimen.template.html     最终版样张页模板
 site/first.html                第一版样张页，保持 2026-10-03 的原样
 site/build.py                  生成 docs/
 docs/                          GitHub Pages 网站，含影片和图片
+films/                         五支影片的源码（画面引擎、配乐脚本）
 fonts/                         构建好的字体文件
 ```
 
