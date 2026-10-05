@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <script>window.PUNCTUM_NO_HUD = true;</script>
+    <script src="assets/events.js"></script>
+    <script src="assets/film.js"></script>
+    <script src="assets/edl.js"></script>
+    <style>
+      @font-face { font-family: "Punctum"; src: url("assets/Punctum-VF.woff2") format("woff2"); font-weight: 100 900; }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; background: #050505; }
+      #root { position: relative; width: 1920px; height: 1080px; overflow: hidden; background: #050505; }
+      .layer { position: absolute; inset: 0; }
+      .stage { position: absolute; inset: 0; perspective: 1700px; perspective-origin: 50% 50%; transform-style: preserve-3d; }
+      .plane { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; backface-visibility: hidden; overflow: hidden; opacity: 0; }
+      .plane canvas, .plane video { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; display: block; }
+      .hud { position: absolute; font-family: "Punctum"; font-size: 20px; line-height: 1; color: #8c8b84; font-variation-settings: "wght" 500, "ROND" 100; white-space: pre; opacity: 0; }
+      .hud b { color: #eeede7; font-weight: normal; }
+      #h-tl { left: 64px; top: 52px; } #h-tr { right: 64px; top: 52px; } #h-bl { left: 64px; bottom: 52px; } #h-br { right: 64px; bottom: 52px; }
+      #flash { background: #fff; opacity: 0; mix-blend-mode: overlay; }
+      #white { background: #f2f1ea; opacity: 0; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="92" data-width="1920" data-height="1080">
+      <div class="stage" id="stage" data-layout-allow-overlap data-layout-allow-occlusion data-layout-allow-overflow>
+        <div class="plane" id="pb"></div>
+        <div class="plane" id="pa"><canvas id="film" width="1920" height="1080"></canvas></div>
+      </div>
+      <div class="layer" id="white"></div>
+      <div class="layer" id="flash"></div>
+      <div class="hud" id="h-tl" data-layout-allow-overlap data-layout-allow-occlusion></div>
+      <div class="hud" id="h-tr" data-layout-allow-overlap data-layout-allow-occlusion></div>
+      <div class="hud" id="h-bl" data-layout-allow-overlap data-layout-allow-occlusion></div>
+      <div class="hud" id="h-br" data-layout-allow-overlap data-layout-allow-occlusion></div>
+      <audio id="score" src="assets/score.wav" data-start="0" data-duration="92" data-track-index="20"></audio>
+    </div>
+    <script>
+      const LEN = window.FILM_LEN, EDL = window.EDL, HANDLE = 0.45;
+      const $ = (id) => document.getElementById(id);
+      const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+
+      /* ── B: one timed clip of the specimen footage per B segment (handles for transitions) ── */
+      EDL.forEach(([src, t0, t1, sin], i) => {
+        if (src !== "B") return;
+        const a = Math.max(0, t0 - HANDLE), ms = sin - (t0 - a), d = t1 + HANDLE - a;
+        const v = document.createElement("video");
+        Object.assign(v, { id: "b" + i, className: "clip", src: "footage/specimen.mp4", muted: true, playsInline: true });
+        v.muted = true; v.setAttribute("muted", "");
+        v.dataset.start = a.toFixed(3); v.dataset.duration = d.toFixed(3); v.dataset.mediaStart = ms.toFixed(3); v.dataset.trackIndex = String(i % 2);
+        $("pb").appendChild(v);
+      });
+
+      /* ── A: the 35 LIGHTS engine, time-remapped per A segment ── */
+      const film = createPunctumFilm(), fctx = $("film").getContext("2d");
+      function aTime(t) {
+        let best = null, bd = 1e9;
+        EDL.forEach(([src, t0, t1, sin]) => { if (src !== "A") return; const d = t < t0 ? t0 - t : t > t1 ? t - t1 : 0; if (d < bd) { bd = d; best = sin + (t - t0); } });
+        return clamp(best, 0, 59.999);
+      }
+
+      /* ── transitions between the two sources ── */
+      const tl = gsap.timeline({ paused: true });
+      const Z = { x: 0, y: 0, z: 0, scale: 1, rotationX: 0, rotationY: 0, rotationZ: 0, filter: "blur(0px)" };
+      tl.set("#pb", { ...Z, opacity: 1 }, 0);
+      tl.set("#pa", { ...Z, opacity: 0 }, 0);
+      const flash = (t, o = 0.45, d = 0.45) => tl.fromTo("#flash", { opacity: o }, { opacity: 0, duration: d, ease: "power2.out", immediateRender: false }, t);
+      // 3.6  hero whips up → the lattice rises from below
+      tl.set("#pa", { opacity: 1, y: 1100, filter: "blur(16px)" }, 3.6);
+      tl.to("#pa", { y: 0, filter: "blur(0px)", duration: 0.45, ease: "expo.out" }, 3.6);
+      tl.set("#pb", { opacity: 0 }, 3.62);
+      flash(3.6);
+      // 8.0  hard cut into the countdown on the downbeat
+      flash(8.0, 0.5, 0.35);
+      // 16.0 blackout → the site lands
+      tl.set("#pa", { opacity: 0 }, 16.0);
+      tl.set("#pb", { opacity: 1, scale: 1.22, filter: "blur(12px)" }, 16.0);
+      tl.to("#pb", { scale: 1, filter: "blur(0px)", duration: 0.7, ease: "expo.out" }, 16.0);
+      flash(16.0, 0.9, 0.7);
+      // 27.9 dive through the dots of "35" → THIN
+      tl.set("#pb", { opacity: 0 }, 27.9);
+      tl.set("#pa", { opacity: 1 }, 27.9);
+      flash(28.0, 0.4);
+      // 38.4 cube: the weights spin away, the axes pad turns in
+      tl.to("#pa", { x: -1500, rotationY: -78, duration: 0.5, ease: "power3.in" }, 38.15);
+      tl.set("#pa", { opacity: 0 }, 38.66);
+      tl.set("#pb", { opacity: 1, x: 1500, rotationY: 78 }, 38.15);
+      tl.to("#pb", { x: 0, rotationY: 0, duration: 0.55, ease: "power3.out" }, 38.4);
+      flash(38.6, 0.3);
+      // 51.3 card flip: glyph set turns over, the materials are on the back
+      tl.to("#pb", { rotationY: 180, scale: 0.82, duration: 0.6, ease: "power3.inOut" }, 51.0);
+      tl.set("#pb", { opacity: 0 }, 51.62);
+      tl.set("#pa", { ...Z, opacity: 1, rotationY: -180, scale: 0.82 }, 51.0);
+      tl.to("#pa", { rotationY: 0, scale: 1, duration: 0.6, ease: "power3.inOut" }, 51.0);
+      // 64.0 whip pan: departures board (amber) → the live board
+      tl.to("#pa", { x: -2400, filter: "blur(22px)", duration: 0.4, ease: "power3.in" }, 63.75);
+      tl.set("#pa", { opacity: 0 }, 64.16);
+      tl.set("#pb", { ...Z, opacity: 1, x: 2400, filter: "blur(22px)" }, 63.85);
+      tl.to("#pb", { x: 0, filter: "blur(0px)", duration: 0.45, ease: "power3.out" }, 63.85);
+      // 76.0 tester squashes away → the lattice pops forward
+      tl.set("#pb", { opacity: 0 }, 76.0);
+      tl.set("#pa", { ...Z, opacity: 1, scale: 1.3, filter: "blur(8px)" }, 76.0);
+      tl.to("#pa", { scale: 1, filter: "blur(0px)", duration: 0.45, ease: "expo.out" }, 76.0);
+      flash(76.0, 0.5);
+      // 82.0 match cut on the word: lens-written PUNCTUM → the footer wordmark
+      tl.set("#pb", { ...Z, opacity: 0, scale: 1.12 }, 81.75);
+      tl.to("#pb", { opacity: 1, scale: 1, duration: 0.45, ease: "power2.out" }, 81.75);
+      tl.to("#pa", { opacity: 0, scale: 0.94, duration: 0.45, ease: "power2.in" }, 81.75);
+      flash(82.0, 0.35);
+      // 88.4 the wall falls away → end card
+      tl.set("#pa", { ...Z, opacity: 0 }, 88.25);
+      tl.to("#pa", { opacity: 1, duration: 0.35, ease: "power1.out" }, 88.25);
+      tl.to("#pb", { opacity: 0, duration: 0.35, ease: "power1.in" }, 88.25);
+
+      /* ── unified HUD (dot font, split-flap section names) ── */
+      const DRUM = " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:.-/";
+      const flap = (from, to, t, t0, st = 0.035, tick = 0.04) => { const fr = [...from], n = Math.max(fr.length, [...to].length);
+        return [...to.padEnd(n)].map((ch, i) => { const s0 = t0 + i * st, steps = 5 + (i * 7) % 6, k = Math.floor((t - s0) / tick);
+          if (t < s0) return fr[i] ?? " "; if (k >= steps) return ch;
+          let e = DRUM.indexOf(ch.toUpperCase()); if (e < 0) e = 3; return DRUM[(e - steps + k + DRUM.length * 4) % DRUM.length]; }).join(""); };
+      const SECT = [[0, "PUNCTUM"], [0.85, "HERO"], [3.6, "35 LIGHTS"], [8, "COUNTDOWN"], [16, "OVERVIEW"], [23.6, "IDEA"], [27.9, "WEIGHT"], [38.4, "AXES"],
+        [46, "GLYPHS"], [51.3, "MATERIALS"], [64, "BOARD"], [70, "TESTER"], [76, "LATTICE"], [82, "INFO"], [88.4, "PUNCTUM"]];
+      const num = (i) => String(i).padStart(2, "0");
+      function frame(t) {
+        film.draw(fctx, aTime(t));
+        let m = 0; SECT.forEach(([s], i) => { if (t >= s) m = i; });
+        $("h-tl").textContent = "PUNCTUM  V1.0";
+        $("h-tr").innerHTML = `<b>${flap(num(Math.max(0, m - 1)), num(m), t, SECT[m][0])}</b> / ${SECT.length - 1}`;
+        $("h-bl").textContent = flap(m ? SECT[m - 1][1] : "", SECT[m][1], t, SECT[m][0]);
+        $("h-br").textContent = `00:${num(Math.floor(t / 60))}:${num(Math.floor(t) % 60)}:${num(Math.floor(t * 60) % 60)}`;
+        const hv = t > 0.9 && t < 88.2 ? 1 : 0;
+        ["h-tl", "h-tr", "h-bl", "h-br"].forEach((id) => ($(id).style.opacity = hv));
+      }
+      const clock = { t: 0 };
+      tl.to(clock, { t: LEN, duration: LEN, ease: "none", onUpdate: () => frame(clock.t) }, 0);
+      frame(0);
+      window.__timelines = window.__timelines || {};
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

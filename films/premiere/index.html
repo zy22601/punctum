@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>PUNCTUM — premiere</title>
+    <style>
+      @font-face { font-family: "Punctum"; src: url("assets/Punctum-VF.woff2") format("woff2"); font-weight: 100 900; }
+      html, body { margin: 0; background: #000; overflow: hidden; }
+      canvas { display: block; }
+      #hud { position: absolute; left: 0; top: 0; pointer-events: none; }
+    </style>
+    <script src="src/glyphs.js"></script>
+    <script src="src/model.js"></script>
+    <script src="src/renderer.js"></script>
+  </head>
+  <body>
+    <canvas id="gl"></canvas>
+    <canvas id="hud"></canvas>
+    <script>
+      const Q = new URLSearchParams(location.search);
+      const W = +(Q.get("w") || 1920), H = +(Q.get("h") || 1080);
+      const gl = document.getElementById("gl"), hud = document.getElementById("hud");
+      gl.width = hud.width = W; gl.height = hud.height = H;
+      const R = createRenderer(gl, W, H);
+      const hx = hud.getContext("2d");
+
+      // cursor sprite
+      const cur = document.createElement("canvas"); cur.width = cur.height = 128;
+      { const c = cur.getContext("2d"); c.translate(30, 10); c.scale(3, 3);
+        c.beginPath(); c.moveTo(3, 2); c.lineTo(3, 30); c.lineTo(10, 23.5); c.lineTo(15, 35); c.lineTo(20, 33); c.lineTo(15, 21.5); c.lineTo(25, 21.5); c.closePath();
+        c.fillStyle = "#fff"; c.strokeStyle = "#0a0a09"; c.lineWidth = 2; c.lineJoin = "round"; c.fill(); c.stroke(); }
+      R.addImage("cursor", cur);
+
+      const DRUM = " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:.-/";
+      const pad2 = (v) => String(v).padStart(2, "0");
+      function drawHud(F) {
+        hx.clearRect(0, 0, W, H);
+        const t = F.t, a = Math.min(1, Math.max(0, (t - 2.2) / 0.4)) * (1 - Math.min(1, Math.max(0, (t - 76.5) / 0.5)));
+        if (a <= 0) return;
+        const s = W / 1920;
+        hx.globalAlpha = a * 0.85; hx.fillStyle = "#8c8b84"; hx.font = `${Math.round(19 * s)}px Punctum`; hx.textBaseline = "alphabetic";
+        hx.textAlign = "left"; hx.fillText("PUNCTUM  V1.0", 64 * s, 72 * s);
+        hx.fillText((F.sect || "").toUpperCase(), 64 * s, H - 54 * s);
+        hx.textAlign = "right";
+        const fr = Math.floor(t * 60); hx.fillText(`00:${pad2(Math.floor(t / 60))}:${pad2(Math.floor(t) % 60)}:${pad2(fr % 60)}`, W - 64 * s, 72 * s);
+        hx.fillText(F.tag || (F.ax ? `WGHT ${String(F.ax[0]).padStart(3, " ")}   ROND ${String(F.ax[1]).padStart(3, " ")}` : ""), W - 64 * s, H - 54 * s);
+        hx.globalAlpha = 1;
+      }
+
+      function renderAt(t) {
+        const F = PUNCTUM.frame(t);
+        if (F.cursor) {
+          const c = F.cam, f = norm3(sub3(c.tgt, c.pos)), r = norm3(cross3(f, [0, 1, 0])), u = cross3(r, f), s = F.cursor.s;
+          F.quads = (F.quads || []).concat([{ tex: "cursor", c: add3(F.cursor.p, add3(mul3(r, s * 0.9), mul3(u, -s * 0.9))), u: mul3(r, s), v: mul3(u, s), gain: 1.6 }]);
+        }
+        if (Q.has("dbg")) Object.assign(F.post, JSON.parse(Q.get("dbg")));
+        R.render(F, Math.round(t * 60));
+        drawHud(F);
+        return F;
+      }
+      const sub3 = (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]], add3 = (a, b) => [a[0] + b[0], a[1] + b[1], a[2] + b[2]], mul3 = (a, s) => [a[0] * s, a[1] * s, a[2] * s];
+      const cross3 = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+      const norm3 = (a) => { const l = Math.hypot(...a) || 1; return a.map((x) => x / l); };
+
+      // composite GL + HUD into one RGBA buffer for the film renderer
+      const out = document.createElement("canvas"); out.width = W; out.height = H; const ox = out.getContext("2d", { willReadFrequently: true });
+      window.__frame = (t) => {
+        renderAt(t);
+        ox.globalCompositeOperation = "copy"; ox.drawImage(gl, 0, 0); ox.globalCompositeOperation = "source-over"; ox.drawImage(hud, 0, 0);
+        const d = ox.getImageData(0, 0, W, H).data; let s = ""; const CH = 0x8000;
+        for (let i = 0; i < d.length; i += CH) s += String.fromCharCode.apply(null, d.subarray(i, i + CH));
+        return btoa(s);
+      };
+      window.__renderAt = renderAt;
+
+      (async () => {
+        try {
+          await document.fonts.load("20px Punctum");
+          const loads = [];
+          for (let i = 0; i < 11; i++) loads.push(new Promise((res, rej) => { const im = new Image(); im.onload = () => { R.addImage("page" + i, im); res(); }; im.onerror = rej; im.src = `assets/page-${i}.png`; }));
+          await Promise.all(loads);
+          if (Q.has("t")) renderAt(+Q.get("t"));
+          else if (Q.has("play")) { const t0 = performance.now(), s0 = +Q.get("play") || 0; const loop = () => { renderAt(s0 + (performance.now() - t0) / 1000); requestAnimationFrame(loop); }; loop(); }
+          document.title = "READY";
+        } catch (e) { document.title = "ERROR"; console.error(e); window.__err = String(e && e.stack || e); }
+      })();
+    </script>
+  </body>
+</html>
