@@ -1,0 +1,1056 @@
+<title>Punctum</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600&family=Martian+Mono:wght@400;500&display=swap">
+<style>
+@font-face {
+  font-family: "Punctum";
+  src: url(data:font/woff2;base64,__WOFF2__) format("woff2");
+  font-weight: 100 900;
+  font-display: block;
+}
+
+/* Layout: the page is one display. A 12-column sheet; every line of Punctum sits on its own unlit 0.1em dot lattice, so type and grid are the same object. Dark-first: lit dots need a dark board. */
+:root {
+  --bg: #0A0A09;
+  --raise: #121211;
+  --on: #EEEDE7;       /* lit dot, primary text */
+  --dim: #8C8B84;      /* secondary text */
+  --off: #252523;      /* unlit dot */
+  --line: #2A2A28;
+  --veil: rgba(10, 10, 9, 0.82);
+
+  --display: "Punctum", ui-monospace, Menlo, monospace;
+  --body: "Hanken Grotesk", "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", system-ui, sans-serif;
+  --mono: "Martian Mono", ui-monospace, Menlo, monospace;
+
+  --gut: clamp(16px, 3.2vw, 48px);
+  --t-xs: 0.6875rem; --t-s: 0.8125rem; --t-m: 1rem; --t-l: 1.3125rem; --t-xl: 1.75rem;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #E8E8E4; --raise: #F1F1EE; --on: #121211; --dim: #66665F; --off: #D0D0CA; --line: #C9C9C2;
+    --veil: rgba(232, 232, 228, 0.84);
+    color-scheme: light;
+  }
+}
+:root[data-theme="light"] {
+  --bg: #E8E8E4; --raise: #F1F1EE; --on: #121211; --dim: #66665F; --off: #D0D0CA; --line: #C9C9C2;
+  --veil: rgba(232, 232, 228, 0.84);
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+html { scroll-padding-top: 72px; }
+body {
+  margin: 0; background: var(--bg); color: var(--on);
+  font-family: var(--body); font-size: var(--t-m); line-height: 1.55;
+  -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+}
+::selection { background: var(--on); color: var(--bg); }
+a { color: inherit; }
+:focus-visible { outline: 1px solid var(--on); outline-offset: 3px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.wrap { padding-inline: var(--gut); max-width: 1560px; margin-inline: auto; }
+p { margin: 0; text-wrap: pretty; }
+
+/* lattice: Punctum's grid is 0.1em both ways, baseline row centres at 0.05em + n·0.1em */
+.lat {
+  font-family: var(--display); line-height: 1; letter-spacing: 0; font-weight: normal;
+  font-variation-settings: "wght" var(--w, 400), "ROND" var(--r, 100);
+  background-image: var(--lat, none); background-size: 0.1em 0.1em; background-position: 0.05em 0;
+  background-repeat: repeat; background-origin: padding-box;
+  white-space: pre; font-kerning: none; font-feature-settings: "kern" 0;
+}
+.lat .ln { display: block; }
+
+.label { font-family: var(--mono); font-size: var(--t-xs); letter-spacing: 0.06em; text-transform: uppercase; color: var(--dim); }
+.label b { color: var(--on); font-weight: 500; }
+
+/* ── nav ─────────────────────────── */
+.nav {
+  position: fixed; inset: 0 0 auto 0; z-index: 20;
+  padding-top: env(safe-area-inset-top, 0px);
+  background: var(--veil); backdrop-filter: blur(14px) saturate(1.2); -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  border-bottom: 1px solid var(--line);
+}
+.nav .wrap { height: 56px; display: flex; align-items: center; gap: 24px; }
+.nav .mark { font-size: 20px; text-decoration: none; padding: 0.1em 0; --w: 600; }
+.nav ul { display: flex; gap: 22px; list-style: none; margin: 0 auto; padding: 0; }
+.nav ul a { text-decoration: none; position: relative; padding: 6px 0 6px 12px; }
+.nav ul a::before { content: ""; position: absolute; left: 0; top: 50%; width: 5px; height: 5px; margin-top: -2.5px; border-radius: 50%; background: var(--off); transition: background .2s; }
+.nav ul a:hover::before { background: var(--dim); }
+.nav ul a[aria-current="true"] { color: var(--on); }
+.nav ul a[aria-current="true"]::before { background: var(--on); }
+.nav .clock { font-size: 20px; padding: 0.1em 0; margin-left: auto; --w: 500; }
+@media (max-width: 1040px) { .nav ul { display: none; } }
+
+/* ── hero ─────────────────────────── */
+.hero { position: relative; height: max(640px, 100svh); overflow: hidden; }
+.hero canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: crosshair; touch-action: pan-y; }
+.hero .over { position: absolute; inset: 0; pointer-events: none; padding-top: calc(56px + env(safe-area-inset-top, 0px)); }
+.hero .over .wrap { height: 100%; display: grid; grid-template-rows: auto 1fr auto; padding-block: 20px 28px; }
+.hero .top { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.hero .bottom { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 24px 48px; align-items: end; }
+.hero .intro { font-size: var(--t-l); line-height: 1.45; max-width: 34ch; text-wrap: balance; }
+.hero .intro span { color: var(--dim); }
+.hero .facts { display: grid; grid-template-columns: repeat(4, auto); gap: 4px 28px; justify-content: end; }
+.hero .facts div { display: grid; gap: 2px; }
+.hero .facts .n { font-size: 30px; padding: 0.1em 0; --w: 500; }
+.hero .readout { font-variant-numeric: tabular-nums; }
+@media (max-width: 760px) {
+  .hero .bottom { grid-template-columns: 1fr; }
+  .hero .facts { justify-content: start; grid-template-columns: repeat(4, auto); gap: 4px 18px; }
+  .hero .facts .n { font-size: 20px; }
+  .hero .intro { font-size: var(--t-m); }
+}
+
+/* ── ticker ─────────────────────────── */
+.ticker { border-block: 1px solid var(--line); overflow: hidden; font-size: 30px; padding: 0.2em 0; --w: 500; }
+.ticker .run { display: inline-block; will-change: transform; }
+
+/* ── section frame ─────────────────────────── */
+section.sec { padding-block: clamp(80px, 11vw, 160px) 0; }
+.head { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 20px var(--gut); align-items: start; margin-bottom: clamp(36px, 5vw, 64px); }
+.head .tag { grid-column: 1 / span 3; display: grid; gap: 6px; padding-top: 10px; }
+.head .tag .zh { font-size: var(--t-s); color: var(--dim); font-family: var(--body); text-transform: none; letter-spacing: 0; }
+.head h2 { grid-column: 4 / span 9; margin: 0; font-size: 60px; padding: 0.1em 0; --w: 700; }
+.head .lede { grid-column: 4 / span 6; font-size: var(--t-l); line-height: 1.45; color: var(--dim); }
+.head .lede b { color: var(--on); font-weight: 500; }
+@media (max-width: 860px) {
+  .head .tag, .head h2, .head .lede { grid-column: 1 / -1; }
+  .head h2 { font-size: 40px; }
+  .head .lede { font-size: var(--t-m); }
+}
+
+/* ── statement ─────────────────────────── */
+.statement .big { --w: 600; padding: 0.1em 0; overflow: hidden; }
+.statement .cols { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 32px var(--gut); margin-top: clamp(40px, 6vw, 80px); }
+.statement .cols .zh { grid-column: 1 / span 5; font-size: var(--t-xl); line-height: 1.4; text-wrap: balance; }
+.statement .cols .pts { grid-column: 7 / span 6; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+.statement .pts div { display: grid; gap: 10px; align-content: start; border-top: 1px solid var(--line); padding-top: 14px; }
+.statement .pts .n { font-size: 40px; padding: 0.1em 0; --w: 600; }
+.statement .pts p { font-size: var(--t-s); color: var(--dim); }
+@media (max-width: 960px) {
+  .statement .cols .zh, .statement .cols .pts { grid-column: 1 / -1; }
+  .statement .cols .zh { font-size: var(--t-l); }
+}
+@media (max-width: 560px) { .statement .cols .pts { grid-template-columns: 1fr; } }
+
+/* ── metrics ─────────────────────────── */
+.metrics .fig { position: relative; overflow: hidden; }
+.metrics .word { --w: 500; padding: 0 0.1em; display: inline-block; }
+.metrics .mline { position: absolute; left: 0; right: 0; height: 0; border-top: 1px dashed var(--line); }
+.metrics .mline.solid { border-top-style: solid; border-color: var(--dim); }
+.metrics .mline span { position: absolute; right: 0; bottom: 4px; font-family: var(--mono); font-size: var(--t-xs); letter-spacing: .06em; text-transform: uppercase; color: var(--dim); background: var(--bg); padding-left: 8px; }
+.metrics .stats { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 0; border-top: 1px solid var(--line); margin-top: 32px; }
+.metrics .stats div { display: grid; gap: 8px; padding: 18px 16px 4px 0; }
+.metrics .stats .n { font-size: 40px; padding: 0.1em 0; --w: 500; }
+@media (max-width: 900px) { .metrics .stats { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 480px) { .metrics .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } .metrics .stats .n { font-size: 30px; } }
+
+/* ── axes ─────────────────────────── */
+.axes .grid2 { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 32px var(--gut); align-items: stretch; }
+@media (max-width: 900px) { .axes .grid2 { grid-template-columns: 1fr; } }
+.pad { display: grid; gap: 12px; align-content: start; }
+.pad canvas { width: 100%; aspect-ratio: 9 / 6.4; display: block; cursor: grab; touch-action: none; border: 1px solid var(--line); }
+.pad canvas:active { cursor: grabbing; }
+.pad .ax { display: flex; justify-content: space-between; }
+.spec { display: grid; grid-template-rows: 1fr auto; gap: 16px; min-width: 0; border: 1px solid var(--line); padding: 20px; }
+.spec .word { overflow: hidden; align-self: center; padding: 0.1em 0; }
+.spec .meta { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; border-top: 1px solid var(--line); padding-top: 14px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  font-family: var(--mono); font-size: var(--t-xs); letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--dim); background: transparent; border: 1px solid var(--line); border-radius: 999px;
+  padding: 7px 13px; cursor: pointer; transition: color .15s, border-color .15s, background .15s;
+}
+.chip:hover { color: var(--on); border-color: var(--dim); }
+.chip[aria-pressed="true"] { background: var(--on); color: var(--bg); border-color: var(--on); }
+
+/* ── glyphs ─────────────────────────── */
+.glyphs .grid2 { display: grid; grid-template-columns: minmax(0, 340px) minmax(0, 1fr); gap: 32px var(--gut); align-items: start; }
+@media (max-width: 900px) { .glyphs .grid2 { grid-template-columns: 1fr; } }
+.insp { position: sticky; top: 88px; display: grid; gap: 14px; }
+@media (max-width: 900px) { .insp { position: static; grid-template-columns: 160px minmax(0, 1fr); align-items: start; } }
+.insp canvas { width: 100%; aspect-ratio: 7 / 11; display: block; border: 1px solid var(--line); }
+.insp dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 6px 16px; font-family: var(--mono); font-size: var(--t-xs); letter-spacing: .04em; }
+.insp dt { color: var(--dim); text-transform: uppercase; }
+.insp dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
+.gset-ctl { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
+.gset { font-size: 60px; display: flex; flex-wrap: wrap; --w: 400; padding: 0; }
+.gset button {
+  font: inherit; color: var(--on); background: transparent; border: 0; margin: 0;
+  width: 1.2em; height: 1.4em; padding: 0.2em 0.3em; line-height: 1; cursor: pointer; text-align: left;
+  font-variation-settings: inherit; position: relative;
+}
+.gset button::after { content: ""; position: absolute; inset: 0; border: 1px solid transparent; pointer-events: none; transition: border-color .12s; }
+.gset button:hover::after { border-color: var(--dim); }
+.gset button[aria-pressed="true"]::after { border-color: var(--on); }
+.gset button[hidden] { display: none; }
+@media (max-width: 560px) { .gset { font-size: 40px; } }
+
+/* ── board ─────────────────────────── */
+.boardsec { padding-bottom: 0; }
+.board { background: #050505; padding: clamp(20px, 4vw, 56px) 0; border-block: 1px solid #1a1a18; }
+.board .face { --w: 500; color: #F2F1EA; text-shadow: 0 0 0.12em rgba(255, 255, 250, 0.28); width: max-content; margin-inline: auto; padding: 0.1em; }
+.board-ctl { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px; align-items: center; padding-block: 20px 0; }
+@media (max-width: 760px) { .board-ctl { grid-template-columns: 1fr; } }
+.field {
+  font-family: var(--mono); font-size: var(--t-s); color: var(--on); background: transparent;
+  border: 0; border-bottom: 1px solid var(--line); padding: 8px 0; width: 100%; min-width: 0;
+}
+.field:focus { outline: none; border-color: var(--on); }
+
+/* ── tester ─────────────────────────── */
+.tctl { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)) auto; gap: 16px 32px; align-items: end; margin-bottom: 24px; }
+@media (max-width: 860px) { .tctl { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 480px) { .tctl { grid-template-columns: 1fr; } }
+.rng { display: grid; gap: 6px; min-width: 0; }
+.rng label { display: flex; justify-content: space-between; }
+.rng output { font-family: var(--mono); font-size: var(--t-xs); color: var(--on); font-variant-numeric: tabular-nums; }
+input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 20px; background: transparent; margin: 0; }
+input[type=range]::-webkit-slider-runnable-track { height: 1px; background: var(--line); }
+input[type=range]::-moz-range-track { height: 1px; background: var(--line); }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 13px; height: 13px; border-radius: 50%; background: var(--on); margin-top: -6px; }
+input[type=range]::-moz-range-thumb { width: 13px; height: 13px; border: 0; border-radius: 50%; background: var(--on); }
+#t-area {
+  display: block; width: 100%; min-height: 3.2em; resize: vertical; border: 0; border-block: 1px solid var(--line);
+  color: var(--on); background-color: transparent; padding: 0.2em 0; margin: 0; background-attachment: local;
+  white-space: pre-wrap; overflow-wrap: anywhere; outline: none;
+}
+.tfoot { display: flex; justify-content: space-between; gap: 12px 24px; flex-wrap: wrap; align-items: center; margin-top: 16px; }
+.css-out { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; min-width: 0; }
+.css-out code { font-family: var(--mono); font-size: var(--t-xs); color: var(--on); overflow-x: auto; max-width: 100%; white-space: nowrap; }
+
+/* ── in use ─────────────────────────── */
+.uses { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--gut); }
+@media (max-width: 860px) { .uses { grid-template-columns: 1fr; } }
+.use { display: grid; gap: 12px; margin: 0; }
+.use .obj { aspect-ratio: 4 / 3; display: grid; place-items: center; overflow: hidden; position: relative; }
+.use .obj .lat { padding: 0.1em; }
+.use figcaption { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.o-led { background: radial-gradient(120% 90% at 50% 40%, #1d1210, #0c0807); }
+.o-led .lat { color: #FF5140; text-shadow: 0 0 0.1em rgba(255, 70, 50, .65), 0 0 0.4em rgba(255, 60, 40, .25); }
+.o-led .stack { display: grid; justify-items: center; gap: 0.6em; font-size: 20px; }
+.o-vfd { background: #031110; }
+.o-vfd::after { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(90deg, rgba(0,0,0,.18) 0 1px, transparent 1px 3px); pointer-events: none; }
+.o-vfd .lat { color: #8CF5E4; text-shadow: 0 0 0.08em rgba(120, 255, 230, .8), 0 0 0.35em rgba(90, 240, 210, .3); }
+.o-paper { background: #2a2a27; }
+.o-paper .slip { background: #F7F6F1; color: #1A1A19; padding: 6% 0 9%; box-shadow: 0 20px 50px rgba(0,0,0,.35); clip-path: polygon(0 0, 100% 0, 100% 97%, 97.5% 100%, 95% 97%, 92.5% 100%, 90% 97%, 87.5% 100%, 85% 97%, 82.5% 100%, 80% 97%, 77.5% 100%, 75% 97%, 72.5% 100%, 70% 97%, 67.5% 100%, 65% 97%, 62.5% 100%, 60% 97%, 57.5% 100%, 55% 97%, 52.5% 100%, 50% 97%, 47.5% 100%, 45% 97%, 42.5% 100%, 40% 97%, 37.5% 100%, 35% 97%, 32.5% 100%, 30% 97%, 27.5% 100%, 25% 97%, 22.5% 100%, 20% 97%, 17.5% 100%, 15% 97%, 12.5% 100%, 10% 97%, 7.5% 100%, 5% 97%, 2.5% 100%, 0 97%); }
+.o-lcd { background: #9DA78B; }
+.o-lcd .screen { background: #B7C1A3; box-shadow: inset 0 2px 8px rgba(0,0,0,.25); padding: 5%; }
+.o-lcd .lat { color: #1C2416; }
+
+/* ── info ─────────────────────────── */
+.info .cols { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 40px var(--gut); }
+.info .specs { grid-column: 1 / span 6; }
+.info .side { grid-column: 8 / span 5; display: grid; gap: 40px; align-content: start; }
+@media (max-width: 900px) { .info .specs, .info .side { grid-column: 1 / -1; } }
+table.t { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.t th, .t td { text-align: left; padding: 12px 12px 12px 0; border-bottom: 1px solid var(--line); vertical-align: baseline; }
+.t th { font-family: var(--mono); font-size: var(--t-xs); letter-spacing: .06em; text-transform: uppercase; color: var(--dim); font-weight: 400; width: 34%; }
+.t td.v { font-family: var(--mono); font-size: var(--t-s); white-space: nowrap; }
+.t td.d { color: var(--dim); font-size: var(--t-s); }
+.list { list-style: none; margin: 0; padding: 0; display: grid; }
+.list li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--line); font-size: var(--t-s); }
+.list li code { font-family: var(--mono); font-size: var(--t-xs); overflow-wrap: anywhere; }
+.list li span { color: var(--dim); text-align: right; }
+.side h3 { margin: 0 0 8px; font-family: var(--mono); font-size: var(--t-xs); font-weight: 400; letter-spacing: .06em; text-transform: uppercase; color: var(--dim); }
+
+/* ── footer ─────────────────────────── */
+footer { padding-block: clamp(100px, 14vw, 200px) 28px; }
+footer .big { --w: 900; --r: 100; padding: 0.1em 0; overflow: hidden; cursor: default; }
+footer .row { display: flex; justify-content: space-between; gap: 12px 32px; flex-wrap: wrap; margin-top: 24px; border-top: 1px solid var(--line); padding-top: 16px; }
+footer .row a { text-decoration: none; }
+footer .row a:hover { color: var(--on); }
+
+@media (prefers-reduced-motion: reduce) { .ticker .run { animation: none !important; } }
+/* films */
+.reel { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--gut); }
+@media (max-width: 960px) { .reel { grid-template-columns: 1fr; } }
+.film { display: grid; gap: 12px; margin: 0; }
+.film video { width: 100%; aspect-ratio: 16 / 9; display: block; background: var(--raise); border: 1px solid var(--line); }
+.film figcaption { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.info .lede a { color: var(--on); text-underline-offset: 4px; white-space: nowrap; }
+.list a { text-decoration: none; } .list a:hover code { color: var(--on); text-decoration: underline; text-underline-offset: 3px; }
+</style>
+
+<nav class="nav" aria-label="页面导航">
+  <div class="wrap">
+    <a class="mark lat" href="#top" data-lat>PUNCTUM</a>
+    <ul>
+      <li><a class="label" href="#idea">Idea</a></li>
+      <li><a class="label" href="#system">System</a></li>
+      <li><a class="label" href="#axes">Axes</a></li>
+      <li><a class="label" href="#glyphs">Glyphs</a></li>
+      <li><a class="label" href="#board">Board</a></li>
+      <li><a class="label" href="#tester">Tester</a></li>
+      <li><a class="label" href="#use">In use</a></li>
+      <li><a class="label" href="#films">Films</a></li>
+      <li><a class="label" href="#info">Info</a></li>
+      <li><a class="label" href="https://github.com/sundyme/punctum">GitHub ↗</a></li>
+    </ul>
+    <span class="clock lat" id="clock" data-lat aria-label="本地时间"><span class="ln">00:00:00</span></span>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <h1 class="sr">Punctum, a variable dot-matrix typeface</h1>
+  <canvas id="hero" aria-label="由点阵组成的 PUNCTUM 字样。移动指针，镜头下的点会变大并变成方形像素。"></canvas>
+  <div class="over">
+    <div class="wrap">
+      <div class="top">
+        <span class="label">Variable dot-matrix typeface · 可变点阵字体</span>
+        <span class="label readout" id="readout">Lens <b>x 00 y 00</b> · wght <b>600</b> · ROND <b>100</b></span>
+      </div>
+      <div></div>
+      <div class="bottom">
+        <p class="intro">每个字母由 35 盏灯组成。<span>Punctum 有两条轴：点的大小和点的形状。移动指针，看镜头下的点从圆点变成像素。</span></p>
+        <div class="facts">
+          <div><span class="n lat" data-lat>108</span><span class="label">Glyphs</span></div>
+          <div><span class="n lat" data-lat>2</span><span class="label">Axes</span></div>
+          <div><span class="n lat" data-lat>18</span><span class="label">Styles</span></div>
+          <div><span class="n lat" data-lat>5x7</span><span class="label">Lattice</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="ticker lat" id="ticker" data-lat aria-hidden="true"><span class="run" id="ticker-run"></span></div>
+
+<main>
+
+<section class="sec statement" id="idea" aria-labelledby="h-idea">
+  <div class="wrap">
+    <h2 class="sr" id="h-idea">Idea</h2>
+    <div class="big lat" data-lat data-fit="1" data-max="200" data-flap><span class="ln">EVERY LETTER IS</span><span class="ln">A DECISION ABOUT</span><span class="ln">35 LIGHTS.</span></div>
+    <div class="cols">
+      <p class="zh">每一个字母，都是对 35 盏灯的一次决定：哪些亮，哪些不亮。Punctum 把这个决定做成一款可以安装的字体。</p>
+      <div class="pts">
+        <div><span class="n lat" data-lat>5x7</span><p>大写和小写共用一张 5 × 7 的点阵。小写的 g j p q y 另有两行真正的下伸部，不用压扁。</p></div>
+        <div><span class="n lat" data-lat>100</span><p>点距 100 单位，横竖相同。字距和行距也是整数个点，所以一整段文字落在同一张网格上。</p></div>
+        <div><span class="n lat" data-lat>1</span><p>一个可变字体文件。点的大小和点的形状是两条独立的轴，可以任意组合。</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec metrics" id="system" aria-labelledby="h-system">
+  <div class="wrap">
+    <div class="head">
+      <div class="tag"><span class="label">System</span><span class="label zh">网格与度量</span></div>
+      <h2 class="lat" id="h-system" data-lat data-flap><span class="ln">ONE GRID</span></h2>
+      <p class="lede">字宽 600，行高 1000，正好是 6 个和 10 个点距。<b>相邻的字母和相邻的行，所有的点都对齐在同一张网格上</b>，排出来的文字像一整块显示屏。</p>
+    </div>
+    <div class="fig" id="mfig">
+      <div class="word lat" id="mword" data-lat data-fit="1" data-max="480" data-fitpad="0.2" data-fitwm="0.6"><span class="ln">Hxgy</span></div>
+    </div>
+    <div class="stats">
+      <div><span class="n lat" data-lat>100</span><span class="label">Pitch</span></div>
+      <div><span class="n lat" data-lat>600</span><span class="label">Advance</span></div>
+      <div><span class="n lat" data-lat>1000</span><span class="label">Line</span></div>
+      <div><span class="n lat" data-lat>700</span><span class="label">Cap height</span></div>
+      <div><span class="n lat" data-lat>500</span><span class="label">x-height</span></div>
+      <div><span class="n lat" data-lat>-200</span><span class="label">Descender</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec axes" id="axes" aria-labelledby="h-axes">
+  <div class="wrap">
+    <div class="head">
+      <div class="tag"><span class="label">Axes</span><span class="label zh">两条轴</span></div>
+      <h2 class="lat" id="h-axes" data-lat data-flap><span class="ln">SIZE x SHAPE</span></h2>
+      <p class="lede">横向是 <b>wght</b>：点从针孔大小长到彼此相接。纵向是 <b>ROND</b>：圆点逐渐变成方形像素。左边的点阵就是整个设计空间，每个点都按它所在的位置画出来。拖动它。</p>
+    </div>
+    <div class="grid2">
+      <div class="pad">
+        <canvas id="pad" tabindex="0" role="application" aria-label="设计空间。拖动，或用方向键调整：左右改字重，上下改圆度。"></canvas>
+        <div class="ax"><span class="label">wght 100</span><span class="label">← Size →</span><span class="label">wght 900</span></div>
+        <div class="chips" role="group" aria-label="命名实例" id="ax-chips">
+          <button class="chip" type="button" data-w="100" data-r="100">Thin</button>
+          <button class="chip" type="button" data-w="400" data-r="100">Regular</button>
+          <button class="chip" type="button" data-w="900" data-r="100">Black</button>
+          <button class="chip" type="button" data-w="400" data-r="0">Pixel</button>
+          <button class="chip" type="button" data-w="900" data-r="0">Pixel Black</button>
+        </div>
+      </div>
+      <div class="spec">
+        <div class="word lat" id="ax-word" data-fit="1" data-max="260"><span class="ln">Rag5</span></div>
+        <div class="meta">
+          <span class="label" id="ax-name">Style <b>Regular</b></span>
+          <span class="label">wght <b id="ax-w">400</b> · ROND <b id="ax-r">100</b> · Dot <b id="ax-d">60</b>/100</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec glyphs" id="glyphs" aria-labelledby="h-glyphs">
+  <div class="wrap">
+    <div class="head">
+      <div class="tag"><span class="label">Glyphs</span><span class="label zh">字符集</span></div>
+      <h2 class="lat" id="h-glyphs" data-lat data-flap><span class="ln">108 GLYPHS</span></h2>
+      <p class="lede">完整的 ASCII，加上一组标牌常用的符号。整张字符表铺在一张连续的点阵上。指向或点选任意字符，左边会显示它的结构。</p>
+    </div>
+    <div class="grid2">
+      <div class="insp">
+        <canvas id="insp" aria-label="所选字符的点阵结构"></canvas>
+        <dl>
+          <dt>Glyph</dt><dd id="i-ch">g</dd>
+          <dt>Unicode</dt><dd id="i-cp">U+0067</dd>
+          <dt>Set</dt><dd id="i-set">Lowercase</dd>
+          <dt>Lit</dt><dd id="i-n">18 / 45</dd>
+          <dt>Rows</dt><dd id="i-rows">x-height · descender</dd>
+        </dl>
+      </div>
+      <div style="min-width:0">
+        <div class="gset-ctl">
+          <div class="chips" role="group" aria-label="筛选" id="g-filter">
+            <button class="chip" type="button" data-f="all" aria-pressed="true">All</button>
+            <button class="chip" type="button" data-f="upper">A–Z</button>
+            <button class="chip" type="button" data-f="lower">a–z</button>
+            <button class="chip" type="button" data-f="fig">0–9</button>
+            <button class="chip" type="button" data-f="punct">Punctuation</button>
+            <button class="chip" type="button" data-f="sign">Signage</button>
+          </div>
+          <span class="label" id="g-count">108 shown</span>
+        </div>
+        <div class="gset lat" id="gset" data-lat role="group" aria-label="字符"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec boardsec" id="board" aria-labelledby="h-board">
+  <div class="wrap">
+    <div class="head">
+      <div class="tag"><span class="label">Board</span><span class="label zh">翻牌屏</span></div>
+      <h2 class="lat" id="h-board" data-lat data-flap><span class="ln">ROLL CALL</span></h2>
+      <p class="lede">一块由 Punctum 驱动的显示屏。每个字位像翻牌一样滚过一圈字符，再停在目标上，从左上到右下错开出发。世界时钟每分钟只翻动变化的字位。点一下屏幕，全部重翻。</p>
+    </div>
+  </div>
+  <div class="board" id="boardbox" title="点击重翻">
+    <div class="face lat" id="face" data-fitboard aria-live="off"></div>
+  </div>
+  <div class="wrap">
+    <div class="board-ctl">
+      <input class="field" id="board-msg" type="text" maxlength="120" placeholder="输入一句话，按回车显示在屏上" aria-label="屏幕文字">
+      <div class="chips" role="group" aria-label="屏幕内容" id="b-modes">
+        <button class="chip" type="button" data-m="clock" aria-pressed="true">World clock</button>
+        <button class="chip" type="button" data-m="dep">Departures</button>
+        <button class="chip" type="button" data-m="msg">Message</button>
+        <button class="chip" type="button" id="b-sound" aria-pressed="false">Sound off</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec tester" id="tester" aria-labelledby="h-tester">
+  <div class="wrap">
+    <div class="head">
+      <div class="tag"><span class="label">Tester</span><span class="label zh">试排</span></div>
+      <h2 class="lat" id="h-tester" data-lat data-flap><span class="ln">TYPE HERE</span></h2>
+      <p class="lede">直接在下面打字。字号以 10 px 为一档，这样点阵底纹和字形能逐点对齐；关掉底纹，就是字体在页面上原本的样子。</p>
+    </div>
+    <div class="tctl">
+      <div class="rng"><label class="label" for="t-w">wght <output id="o-w">400</output></label><input id="t-w" type="range" min="100" max="900" value="400"></div>
+      <div class="rng"><label class="label" for="t-r">ROND <output id="o-r">100</output></label><input id="t-r" type="range" min="0" max="100" value="100"></div>
+      <div class="rng"><label class="label" for="t-s">Size <output id="o-s">90px</output></label><input id="t-s" type="range" min="20" max="200" step="10" value="90"></div>
+      <div class="chips" role="group" aria-label="底纹"><button class="chip" type="button" id="t-lat" aria-pressed="true">Lattice on</button></div>
+    </div>
+    <textarea id="t-area" class="lat" spellcheck="false" rows="3" aria-label="试排文本">PLATFORM 7 → ZURICH HB
+Departs 08:42, on time.</textarea>
+    <div class="tfoot">
+      <div class="chips" role="group" aria-label="示例文本" id="t-samples">
+        <button class="chip" type="button" data-s="PLATFORM 7 → ZURICH HB&#10;Departs 08:42, on time.">Signage</button>
+        <button class="chip" type="button" data-s="Sphinx of black quartz,&#10;judge my vow.">Pangram</button>
+        <button class="chip" type="button" data-s="0123456789&#10;+12.5% → 3/4 × 08:00">Figures</button>
+        <button class="chip" type="button" data-s="{ }  [ ]  ( )  < >&#10;#@$%&amp;*  ←↑→↓ ♥ ■">Symbols</button>
+      </div>
+      <div class="css-out"><code id="t-css">font-variation-settings: "wght" 400, "ROND" 100;</code><button class="chip" type="button" id="t-copy">Copy CSS</button><span class="label" id="t-msg" role="status"></span></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="use" aria-labelledby="h-use">
+  <div class="wrap">
+    <div class="head">
+      <div class="tag"><span class="label">In use</span><span class="label zh">四种显示材料</span></div>
+      <h2 class="lat" id="h-use" data-lat data-flap><span class="ln">IN THE WILD</span></h2>
+      <p class="lede">同一套点阵，放进四种真实的显示材料：电梯里的红色 LED、音响上的 VFD 荧光屏、热敏小票、反射式液晶。每块都只调了两条轴。</p>
+    </div>
+    <div class="uses">
+      <figure class="use">
+        <div class="obj o-led"><div class="stack"><div class="lat" data-c="#2a1512" data-w="700" style="--w:700;font-size:140px" data-fit="1" data-max="160" data-fitw="0.62"><span class="ln">↑12</span></div><div class="lat" data-c="#2a1512" data-w="700" style="--w:700;font-size:20px"><span class="ln">FLOOR</span></div></div></div>
+        <figcaption><span class="label"><b>LED</b> · Elevator</span><span class="label">wght 700 · ROND 100</span></figcaption>
+      </figure>
+      <figure class="use">
+        <div class="obj o-vfd"><div class="lat" data-c="#0c2421" data-w="400" data-r="40" style="--w:400;--r:40" data-fit="1" data-max="60" data-fitw="0.86"><span class="ln">TRACK 07   03:42</span><span class="ln"> </span><span class="ln">PUNCTUM - SIDE A</span></div></div>
+        <figcaption><span class="label"><b>VFD</b> · Cassette deck</span><span class="label">wght 400 · ROND 40</span></figcaption>
+      </figure>
+      <figure class="use">
+        <div class="obj o-paper"><div class="slip"><div class="lat" data-c="#E7E6E0" data-w="300" data-r="0" style="--w:300;--r:0" data-fit="1" data-max="30" data-fitw="0.66"><span class="ln"> PUNCTUM TYPE SHOP  </span><span class="ln"> ------------------ </span><span class="ln"> LATTICE 5x7  35.00 </span><span class="ln"> AXIS wght     9.00 </span><span class="ln"> AXIS ROND     1.00 </span><span class="ln"> GLYPHS x108   0.00 </span><span class="ln"> ------------------ </span><span class="ln"> TOTAL        45.00 </span><span class="ln">                    </span><span class="ln">     THANK YOU ♥    </span></div></div></div>
+        <figcaption><span class="label"><b>Thermal</b> · Receipt</span><span class="label">wght 300 · ROND 0</span></figcaption>
+      </figure>
+      <figure class="use">
+        <div class="obj o-lcd"><div class="screen"><div class="lat" data-c="#AAB496" data-w="900" data-r="0" style="--w:900;--r:0" data-fit="1" data-max="60" data-fitw="0.66"><span class="ln">HI 004500</span><span class="ln"> </span><span class="ln">♥♥♥  LV 07</span></div></div></div>
+        <figcaption><span class="label"><b>LCD</b> · Handheld</span><span class="label">wght 900 · ROND 0</span></figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section class="sec films" id="films" aria-labelledby="h-films">
+  <div class="wrap">
+    <div class="head">
+      <div class="tag"><span class="label">Films</span><span class="label zh">影像</span></div>
+      <h2 class="lat" id="h-films" data-lat data-flap><span class="ln">FILMS</span></h2>
+      <p class="lede">三支短片，画面和声音都是代码生成的：这个网页的产品演示、把字体当作乐谱的 35 LIGHTS，以及用 WebGL2 做的 3D 点光发布片。</p>
+    </div>
+    <div class="reel">
+      <figure class="film">
+        <video controls playsinline preload="none" poster="media/specimen-demo.jpg" src="media/specimen-demo.mp4"></video>
+        <figcaption><span class="label"><b>Specimen</b> · 网页演示</span><span class="label">1:06</span></figcaption>
+      </figure>
+      <figure class="film">
+        <video controls playsinline preload="none" poster="media/35-lights.jpg" src="media/35-lights.mp4"></video>
+        <figcaption><span class="label"><b>35 Lights</b> · 字体即乐谱</span><span class="label">0:42</span></figcaption>
+      </figure>
+      <figure class="film">
+        <video controls playsinline preload="none" poster="media/premiere.jpg" src="media/premiere.mp4"></video>
+        <figcaption><span class="label"><b>Premiere</b> · WebGL2 点光</span><span class="label">1:20</span></figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section class="sec info" id="info" aria-labelledby="h-info">
+  <div class="wrap">
+    <div class="head">
+      <div class="tag"><span class="label">Info</span><span class="label zh">规格与文件</span></div>
+      <h2 class="lat" id="h-info" data-lat data-flap><span class="ln">SPEC SHEET</span></h2>
+      <p class="lede">Punctum v1.000，SIL Open Font License 1.1。可以免费用在任何项目里，包括商业项目，也可以修改和再发布。<a href="https://github.com/sundyme/punctum/releases/latest/download/Punctum.zip">下载字体包 ↓</a></p>
+    </div>
+    <div class="cols">
+      <div class="specs">
+        <table class="t">
+          <tr><th>Units per em</th><td class="v">1000</td><td class="d">每个点位 100 × 100</td></tr>
+          <tr><th>Advance</th><td class="v">600</td><td class="d">等宽，5 个点加 1 个点的字距</td></tr>
+          <tr><th>Line</th><td class="v">800 / −200</td><td class="d">行距为 0 时点阵上下连续</td></tr>
+          <tr><th>Cap · Ascender</th><td class="v">700</td><td class="d">7 个点</td></tr>
+          <tr><th>x-height</th><td class="v">500</td><td class="d">5 个点</td></tr>
+          <tr><th>Descender</th><td class="v">−200</td><td class="d">2 个点：g j p q y , ; _</td></tr>
+          <tr><th>wght</th><td class="v">100–900</td><td class="d">点直径 24 → 100，Black 时点与点相接</td></tr>
+          <tr><th>ROND</th><td class="v">0–100</td><td class="d">0 方形像素，100 圆点（默认）</td></tr>
+          <tr><th>Named styles</th><td class="v">18</td><td class="d">Thin–Black 九个字重 × Round / Pixel</td></tr>
+          <tr><th>Character set</th><td class="v">108</td><td class="d">ASCII + ° · • … × — ← ↑ → ↓ ♥ ■</td></tr>
+        </table>
+      </div>
+      <div class="side">
+        <div>
+          <h3>Download · 下载</h3>
+          <ul class="list">
+            <li><a href="https://github.com/sundyme/punctum/releases/latest/download/Punctum.zip"><code>Punctum.zip</code></a><span>可变字体、10 个静态字重、网页字体</span></li>
+            <li><a href="https://github.com/sundyme/punctum"><code>github.com/sundyme/punctum</code></a><span>源文件与构建脚本</span></li>
+            <li><code>src/glyphs.py</code><span>点阵源数据，改这里重新构建</span></li>
+          </ul>
+        </div>
+        <div>
+          <h3>Version</h3>
+          <ul class="list">
+            <li><code>1.000</code><span>2026-10-03 · 108 glyphs, wght + ROND</span></li>
+            <li><a href="first/"><code>第一版页面</code></a><span>2026-10-03 · 改版前的样张页</span></li>
+            <li><a href="https://github.com/sundyme/punctum/blob/main/PROCESS.md"><code>创作过程</code></a><span>这个字体和页面是怎么一步步做出来的</span></li>
+          </ul>
+        </div>
+        <div>
+          <h3>Web</h3>
+          <ul class="list">
+            <li><code>font-variation-settings: "wght" 400, "ROND" 100;</code><span>CSS</span></li>
+            <li><code>line-height: 1;</code><span>点阵连续</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="big lat" id="fbig" data-lat data-fit="1" data-max="400" data-flap><span class="ln">PUNCTUM</span></div>
+    <div class="row">
+      <span class="label">Punctum v1.000 · OFL 1.1</span>
+      <span class="label">Set in Punctum, Hanken Grotesk &amp; Martian Mono</span>
+      <a class="label" href="https://github.com/sundyme/punctum">GitHub ↗</a>
+      <a class="label" href="#top">Back to top ↑</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+const BITMAPS = __BITMAPS__;
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const lerp = (a, b, t) => a + (b - a) * t, clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+const tok = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+function pw(w, pts) { for (let i = 1; i < pts.length; i++) if (w <= pts[i][0]) { const [a, va] = pts[i - 1], [b, vb] = pts[i]; return lerp(va, vb, (w - a) / (b - a)); } return pts.at(-1)[1]; }
+/* half-size of a dot, in units where pitch = 100 (mirrors build.py masters) */
+function dotR(w, r) { return lerp(pw(w, [[100, 11], [400, 27], [900, 50]]), pw(w, [[100, 12], [400, 30], [900, 50]]), r / 100); }
+function rgb(c) { c = c.trim(); if (c[0] === "#") { const n = parseInt(c.slice(1), 16); return [n >> 16, (n >> 8) & 255, n & 255]; } const m = c.match(/[\d.]+/g); return m ? m.slice(0, 3).map(Number) : [0, 0, 0]; }
+const mix = (a, b, t) => `rgb(${a.map((v, i) => Math.round(lerp(v, b[i], t))).join(",")})`;
+function dot(ctx, x, y, h, rond) { if (h <= 0.2) return; ctx.beginPath(); ctx.roundRect(x - h, y - h, h * 2, h * 2, h * clamp(rond, 0, 100) / 100); ctx.fill(); }
+
+/* ── lattice backgrounds ───────────────────── */
+function latURL(w, r, color, k = 0.72) {
+  const h = dotR(Math.min(w, 600), r) * k, s = (2 * h).toFixed(2), rx = (h * r / 100).toFixed(2), o = (50 - h).toFixed(2);
+  return `url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect x='${o}' y='${o}' width='${s}' height='${s}' rx='${rx}' fill='${color}'/></svg>`)}")`;
+}
+function setLat(el, w, r, color, k, min = 40) {
+  const fs = parseFloat(getComputedStyle(el).fontSize);
+  el.style.setProperty("--lat", fs < min ? "none" : latURL(w, r, color, k));
+}
+function paintLattices() {
+  const off = tok("--off");
+  $$(".lat").forEach((el) => {
+    if (el.id === "face" || el.id === "t-area" || el.id === "ax-word") return;
+    const cs = getComputedStyle(el);
+    const w = +(el.dataset.w || cs.getPropertyValue("--w") || 400), r = +(el.dataset.r || cs.getPropertyValue("--r") || 100);
+    setLat(el, w, r, el.dataset.c || off);
+  });
+  setLat($("#face"), 500, 100, "#1c1c1a", 1, 10);
+  tester.paint(); axes.paint();
+}
+
+/* ── fit: font-size in whole 10 px steps so the 0.1em lattice lands on device pixels ── */
+function fit(el) {
+  const lines = $$(".ln", el).map((l) => [...(l.dataset.t ?? l.textContent)].length);
+  const n = Math.max(1, ...lines);
+  const host = el.closest(".obj") || el.parentElement, hs = getComputedStyle(host);
+  const wpx = (host.clientWidth - parseFloat(hs.paddingLeft) - parseFloat(hs.paddingRight)) * (innerWidth < 700 && el.dataset.fitwm ? +el.dataset.fitwm : (+el.dataset.fitw || 1));
+  const pad = +(el.dataset.fitpad || 0);
+  const fs = clamp(Math.floor(wpx / (n * 0.6 + pad) / 10) * 10, 10, +el.dataset.max || 400);
+  el.style.fontSize = fs + "px";
+}
+const fitAll = () => $$("[data-fit]").forEach(fit);
+
+/* ── split-flap engine (the motion signature) ───────────────────── */
+const DRUM = " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:.-/";
+function drumSeq(target, steps) {
+  const T = target.toUpperCase(), D = DRUM.length;
+  let e = DRUM.indexOf(T); if (e < 0) e = (T.codePointAt(0) * 7) % D;
+  const seq = []; for (let j = 0; j < steps; j++) seq.push(DRUM[(e - steps + j + D * 4) % D]);
+  return seq;
+}
+const flapJobs = new Set();
+let audio = null, soundOn = false, lastClick = 0;
+function click(n) {
+  if (!soundOn || !audio) return;
+  const t = audio.currentTime; if (t - lastClick < 0.028) return; lastClick = t;
+  const len = 0.012, buf = audio.createBuffer(1, Math.ceil(audio.sampleRate * len), audio.sampleRate), d = buf.getChannelData(0);
+  for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / d.length, 3);
+  const src = audio.createBufferSource(), f = audio.createBiquadFilter(), g = audio.createGain();
+  f.type = "bandpass"; f.frequency.value = 2400 + Math.random() * 900; f.Q.value = 1.4;
+  g.gain.value = Math.min(0.5, 0.08 + n * 0.015);
+  src.buffer = buf; src.connect(f).connect(g).connect(audio.destination); src.start();
+}
+/* roll el's .ln lines to targets. onlyChanged: cells already showing their target stay still. */
+function roll(el, targets, o = {}) {
+  const lines = $$(".ln", el);
+  targets = targets || lines.map((l) => l.dataset.t ?? l.textContent);
+  while (lines.length < targets.length) { const s = document.createElement("span"); s.className = "ln"; el.appendChild(s); lines.push(s); }
+  lines.forEach((l, i) => { if (i >= targets.length) l.remove(); });
+  const now = performance.now(), cells = [];
+  const { stagger = 26, lineLag = 70, min = 5, max = 12, tick = 40, onlyChanged = false, delay = 0 } = o;
+  targets.forEach((t, li) => {
+    const ln = lines[li]; ln.dataset.t = t;
+    const cur = [...ln.textContent], tgt = [...t];
+    const L = Math.max(cur.length, tgt.length);
+    const row = [];
+    for (let i = 0; i < L; i++) {
+      const target = tgt[i] ?? " ", from = cur[i] ?? " ";
+      if (onlyChanged && from === target) { row.push({ fixed: target }); continue; }
+      const steps = reduce ? 0 : min + ((i * 7 + li * 3) % (max - min + 1));
+      row.push({ from, target, seq: drumSeq(target, steps), start: now + delay + i * stagger + li * lineLag, tick });
+    }
+    cells.push({ ln, row });
+  });
+  for (const j of flapJobs) if (j.el === el) flapJobs.delete(j);
+  flapJobs.add({ el, cells });
+  kick();
+}
+let flapRAF = 0;
+function flapFrame(now) {
+  flapRAF = 0; let changed = 0;
+  for (const job of flapJobs) {
+    let done = true;
+    for (const c of job.cells) {
+      let s = "";
+      for (const cell of c.row) {
+        if (cell.fixed !== undefined) { s += cell.fixed; continue; }
+        const k = Math.floor((now - cell.start) / cell.tick);
+        let ch;
+        if (k < 0) { ch = cell.from; done = false; }
+        else if (k >= cell.seq.length) ch = cell.target;
+        else { ch = cell.seq[k]; done = false; if (cell.last !== k) { cell.last = k; changed++; } }
+        s += ch;
+      }
+      if (c.ln.textContent !== s) c.ln.textContent = s;
+    }
+    if (done) { job.cells.forEach((c) => { c.ln.textContent = c.ln.dataset.t; }); flapJobs.delete(job); }
+  }
+  if (changed) click(changed);
+  if (flapJobs.size) kick();
+}
+function kick() { if (!flapRAF) flapRAF = requestAnimationFrame(flapFrame); }
+
+/* ── hero: the lattice under a lens ───────────────────── */
+const hero = (() => {
+  const cv = $("#hero"), ctx = cv.getContext("2d");
+  let W, H, P, cols, rows, ox, oy, words, wc, wr, lit, cells = [], t0 = 0, last = 0, idle = true, visible = true;
+  const lens = { x: 0, y: 0, tx: 0, ty: 0, lastMove: -1e9 };
+  let C = {};
+  function colors() { C = { on: rgb(tok("--on")), off: rgb(tok("--off")), dim: rgb(tok("--dim")), bg: tok("--bg"), onS: tok("--on") }; }
+  function layout() {
+    const dpr = Math.min(2, devicePixelRatio || 1);
+    W = cv.clientWidth; H = cv.clientHeight; cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    words = W < 640 ? ["PUNC", "TUM"] : ["PUNCTUM"];
+    const n = Math.max(...words.map((w) => w.length)), ww = n * 6 - 1, wh = words.length * 10 - 1;
+    P = Math.max(6, Math.min(W * (W < 640 ? 0.86 : 0.9) / ww, (H * 0.5) / wh));
+    cols = Math.floor(W / P) + 2; rows = Math.floor(H / P) + 2;
+    ox = (W - (cols - 1) * P) / 2; oy = (H - (rows - 1) * P) / 2;
+    wc = Math.round((cols - ww) / 2); wr = Math.round(rows * 0.45 - wh / 2);
+    if (!cells.length || cells.length !== words.join("").length) startRoll(true);
+    lens.x = lens.tx = W * 0.62; lens.y = lens.ty = H * 0.45;
+  }
+  function startRoll(first) {
+    const now = performance.now(); cells = [];
+    let k = 0;
+    words.forEach((w, li) => [...w].forEach((ch, i) => {
+      const steps = reduce ? 0 : 9 + ((k * 5) % 7);
+      cells.push({ li, i, target: ch, seq: drumSeq(ch, steps), start: now + (first ? 520 : 0) + k * 85 + li * 120 });
+      k++;
+    }));
+    if (first) t0 = now;
+  }
+  function buildLit(now) {
+    lit = new Uint8Array(cols * rows);
+    for (const c of cells) {
+      const k = Math.floor((now - c.start) / 46);
+      const ch = k < 0 ? " " : k >= c.seq.length ? c.target : c.seq[k];
+      const bm = BITMAPS[ch] || BITMAPS[" "];
+      const bx = wc + c.i * 6, by = wr + c.li * 10;
+      for (let y = 0; y < 9; y++) for (let x = 0; x < 5; x++) if (bm[y][x] === "#") {
+        const cx = bx + x, cy = by + y; if (cx >= 0 && cx < cols && cy >= 0 && cy < rows) lit[cy * cols + cx] = 1;
+      }
+    }
+  }
+  function frame(now) {
+    requestAnimationFrame(frame);
+    if (!visible || now - last < 15) return; last = now;
+    if (now - lens.lastMove > 2600) {
+      const t = now * 0.001;
+      lens.tx = W * (0.5 + 0.34 * Math.sin(t * 0.27)); lens.ty = H * (0.46 + 0.2 * Math.sin(t * 0.41 + 1.3));
+    }
+    const ease = reduce ? 1 : 0.11;
+    lens.x += (lens.tx - lens.x) * ease; lens.y += (lens.ty - lens.y) * ease;
+    buildLit(now);
+    ctx.fillStyle = C.bg; ctx.fillRect(0, 0, W, H);
+    const sig = P * 4.2, s2 = 2 * sig * sig, Lr = dotR(600, 100) / 100 * P, Ur = P * 0.13;
+    const intro = reduce ? 1 : clamp((now - t0) / 900, 0, 1);
+    const cxm = W / 2, cym = H / 2, maxd = Math.hypot(cxm, cym);
+    let fC = 0;
+    for (let y = 0; y < rows; y++) {
+      const py = oy + y * P;
+      for (let x = 0; x < cols; x++) {
+        const px = ox + x * P;
+        const dx = px - lens.x, dy = py - lens.y, f = Math.exp(-(dx * dx + dy * dy) / s2);
+        const appear = reduce ? 1 : clamp(intro * 1.6 - Math.hypot(px - cxm, py - cym) / maxd * 0.6, 0, 1);
+        if (appear <= 0) continue;
+        if (lit[y * cols + x]) {
+          ctx.fillStyle = C.onS;
+          dot(ctx, px, py, lerp(Lr, P * 0.5, f) * appear, lerp(100, 0, f));
+        } else {
+          ctx.fillStyle = mix(C.off, C.dim, f * 0.55);
+          dot(ctx, px, py, lerp(Ur, P * 0.24, f) * appear, lerp(100, 20, f));
+        }
+      }
+    }
+    const lc = Math.round((lens.x - ox) / P), lr = Math.round((lens.y - oy) / P);
+    const ro = $("#readout");
+    const txt = `Lens <b>x ${String(clamp(lc, 0, 99)).padStart(2, "0")} y ${String(clamp(lr, 0, 99)).padStart(2, "0")}</b> · wght <b>600→900</b> · ROND <b>100→0</b>`;
+    if (ro.dataset.v !== txt) { ro.innerHTML = txt; ro.dataset.v = txt; }
+  }
+  cv.addEventListener("pointermove", (e) => { const b = cv.getBoundingClientRect(); lens.tx = e.clientX - b.left; lens.ty = e.clientY - b.top; lens.lastMove = performance.now(); });
+  cv.addEventListener("click", () => startRoll(false));
+  new IntersectionObserver((es) => { visible = es[0].isIntersecting; }).observe(cv);
+  colors(); layout(); requestAnimationFrame(frame);
+  return { layout, colors };
+})();
+
+/* ── ticker: steps exactly one dot column at a time ───────────────────── */
+(function () {
+  const run = $("#ticker-run");
+  const msg = "PUNCTUM  ·  VARIABLE DOT MATRIX  ·  5x7 LATTICE  ·  WGHT 100-900  ·  ROND 0-100  ·  108 GLYPHS  ·  OFL 1.1  ·  ";
+  run.textContent = msg + msg;
+  const cols = [...msg].length * 6;
+  if (!reduce) run.animate([{ transform: "translateX(0)" }, { transform: `translateX(-${cols * 0.1}em)` }],
+    { duration: cols * 55, iterations: Infinity, easing: `steps(${cols})` });
+})();
+
+/* ── nav clock ───────────────────── */
+(function () {
+  const el = $("#clock"); const p = (n) => String(n).padStart(2, "0");
+  let prev = "";
+  function tick() {
+    const d = new Date(), s = `${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+    if (s !== prev) { roll(el, [s], { onlyChanged: true, min: 3, max: 5, stagger: 0, tick: 34 }); prev = s; }
+  }
+  tick(); setInterval(tick, 250);
+})();
+
+/* ── metrics figure ───────────────────── */
+function drawMetrics() {
+  const fig = $("#mfig"), w = $("#mword");
+  $$(".mline", fig).forEach((m) => m.remove());
+  const fs = parseFloat(w.style.fontSize) || 200;
+  [[0, "Line top 800"], [0.1, "Cap · ascender 700"], [0.3, "x-height 500"], [0.8, "Baseline 0", true], [1.0, "Descender −200"]]
+    .forEach(([em, label, solid]) => {
+      const d = document.createElement("div"); d.className = "mline" + (solid ? " solid" : "");
+      d.style.top = Math.round(em * fs) + "px"; d.innerHTML = `<span>${label}</span>`; fig.appendChild(d);
+    });
+}
+
+/* ── axes: the design space as a field of dots ───────────────────── */
+const axes = (() => {
+  const cv = $("#pad"), ctx = cv.getContext("2d"), word = $("#ax-word");
+  let w = 400, r = 100, drag = false, C = {}, tw = 400, tr = 100, anim = 0;
+  const NX = 9, NY = 6;
+  const names = { 100: "Thin", 200: "ExtraLight", 300: "Light", 400: "Regular", 500: "Medium", 600: "SemiBold", 700: "Bold", 800: "ExtraBold", 900: "Black" };
+  function draw() {
+    C = { on: rgb(tok("--on")), off: rgb(tok("--off")), dim: rgb(tok("--dim")), line: tok("--line") };
+    const dpr = Math.min(2, devicePixelRatio || 1), W = cv.clientWidth, H = cv.clientHeight;
+    cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const mx = W / NX, my = H / NY, Q = Math.min(mx, my);
+    const hx = ((w - 100) / 800) * (W - mx) + mx / 2, hy = ((100 - r) / 100) * (H - my) + my / 2;
+    ctx.strokeStyle = C.line; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(Math.round(hx) + 0.5, 0); ctx.lineTo(Math.round(hx) + 0.5, H); ctx.moveTo(0, Math.round(hy) + 0.5); ctx.lineTo(W, Math.round(hy) + 0.5); ctx.stroke();
+    for (let j = 0; j < NY; j++) for (let i = 0; i < NX; i++) {
+      const ww = 100 + (800 * i) / (NX - 1), rr = 100 - (100 * j) / (NY - 1);
+      const x = mx / 2 + i * (W - mx) / (NX - 1), y = my / 2 + j * (H - my) / (NY - 1);
+      const near = Math.exp(-((x - hx) ** 2 + (y - hy) ** 2) / (2 * (Q * 1.1) ** 2));
+      ctx.fillStyle = mix(C.dim, C.on, near);
+      dot(ctx, x, y, dotR(ww, rr) / 100 * Q * 0.92, rr);
+    }
+    ctx.strokeStyle = `rgb(${C.on.join(",")})`; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.arc(hx, hy, Q * 0.62, 0, Math.PI * 2); ctx.stroke();
+  }
+  function apply() {
+    word.style.setProperty("--w", w.toFixed(0)); word.style.setProperty("--r", r.toFixed(0));
+    setLat(word, w, r, tok("--off"));
+    $("#ax-w").textContent = Math.round(w); $("#ax-r").textContent = Math.round(r);
+    $("#ax-d").textContent = Math.round(dotR(w, r) * 2);
+    const wn = names[Math.round(w)], rn = Math.round(r);
+    $("#ax-name").innerHTML = `Style <b>${wn && (rn === 100 || rn === 0) ? (rn === 0 ? (wn === "Regular" ? "Pixel" : "Pixel " + wn) : wn) : "Custom"}</b>`;
+    $$("#ax-chips .chip").forEach((c) => c.setAttribute("aria-pressed", String(+c.dataset.w === Math.round(w) && +c.dataset.r === rn)));
+    draw();
+  }
+  function to(nw, nr, animate) {
+    tw = clamp(nw, 100, 900); tr = clamp(nr, 0, 100);
+    if (!animate || reduce) { w = tw; r = tr; apply(); return; }
+    const sw = w, sr = r, t0 = performance.now();
+    cancelAnimationFrame(anim);
+    const step = (t) => { const k = clamp((t - t0) / 520, 0, 1), e = 1 - Math.pow(1 - k, 4); w = lerp(sw, tw, e); r = lerp(sr, tr, e); apply(); if (k < 1) anim = requestAnimationFrame(step); };
+    anim = requestAnimationFrame(step);
+  }
+  function fromPointer(e) {
+    const b = cv.getBoundingClientRect(), mx = b.width / NX, my = b.height / NY;
+    const nw = 100 + clamp((e.clientX - b.left - mx / 2) / (b.width - mx), 0, 1) * 800;
+    const nr = 100 - clamp((e.clientY - b.top - my / 2) / (b.height - my), 0, 1) * 100;
+    cancelAnimationFrame(anim); to(Math.round(nw), Math.round(nr), false);
+  }
+  cv.addEventListener("pointerdown", (e) => { drag = true; cv.setPointerCapture(e.pointerId); fromPointer(e); });
+  cv.addEventListener("pointermove", (e) => { if (drag) fromPointer(e); });
+  cv.addEventListener("pointerup", () => { drag = false; });
+  cv.addEventListener("keydown", (e) => {
+    const m = { ArrowLeft: [-50, 0], ArrowRight: [50, 0], ArrowUp: [0, 10], ArrowDown: [0, -10] }[e.key];
+    if (m) { e.preventDefault(); to(Math.round(w) + m[0], Math.round(r) + m[1], false); }
+  });
+  $$("#ax-chips .chip").forEach((c) => c.addEventListener("click", () => to(+c.dataset.w, +c.dataset.r, true)));
+  return { paint: apply, draw };
+})();
+
+/* ── glyph set + inspector ───────────────────── */
+const SETS = {
+  upper: (c) => /[A-Z]/.test(c), lower: (c) => /[a-z]/.test(c), fig: (c) => /[0-9]/.test(c),
+  sign: (c) => "°·•…×—←↑→↓♥■".includes(c), punct: (c) => /[!-\/:-@\[-`{-~]/.test(c),
+};
+const setOf = (c) => (SETS.upper(c) ? "Uppercase" : SETS.lower(c) ? "Lowercase" : SETS.fig(c) ? "Figure" : SETS.sign(c) ? "Signage" : "Punctuation");
+const insp = (() => {
+  const cv = $("#insp"), ctx = cv.getContext("2d");
+  let cur = "g", R = new Float32Array(45), raf = 0;
+  function target(ch) { const bm = BITMAPS[ch]; return Float32Array.from({ length: 45 }, (_, i) => (bm[(i / 5) | 0][i % 5] === "#" ? 1 : 0)); }
+  let T = target(cur); R.set(T);
+  function draw() {
+    const dpr = Math.min(2, devicePixelRatio || 1), W = cv.clientWidth, H = cv.clientHeight;
+    if (cv.width !== Math.round(W * dpr)) { cv.width = W * dpr; cv.height = H * dpr; }
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, H);
+    const P = W / 7, on = tok("--on"), off = tok("--off"), line = tok("--line"), dim = tok("--dim");
+    ctx.strokeStyle = line; ctx.lineWidth = 1;
+    [[1, "cap"], [3, "x"], [8, "base"], [10, "desc"]].forEach(([row, lab]) => {
+      const y = Math.round(P * row) + 0.5;
+      ctx.setLineDash(lab === "base" ? [] : [2, 3]); ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+      ctx.fillStyle = dim; ctx.font = `400 ${Math.max(8, P * 0.17)}px "Martian Mono", monospace`; ctx.textAlign = "right"; ctx.fillText(lab.toUpperCase(), W - 4, y - 4);
+    });
+    ctx.setLineDash([]);
+    for (let i = 0; i < 45; i++) {
+      const x = P * (1.5 + (i % 5)), y = P * (1.5 + ((i / 5) | 0));
+      ctx.fillStyle = off; dot(ctx, x, y, P * 0.3, 100);
+      if (R[i] > 0.01) { ctx.fillStyle = on; dot(ctx, x, y, P * 0.36 * Math.pow(R[i], 0.8), 100); }
+    }
+  }
+  function step() {
+    let moving = false;
+    for (let i = 0; i < 45; i++) { const d = T[i] - R[i]; if (Math.abs(d) > 0.004) { R[i] += d * (d > 0 ? 0.32 : 0.2); moving = true; } else R[i] = T[i]; }
+    draw(); raf = moving ? requestAnimationFrame(step) : 0;
+  }
+  function show(ch) {
+    cur = ch; T = target(ch);
+    $("#i-ch").textContent = ch; $("#i-cp").textContent = "U+" + ch.codePointAt(0).toString(16).toUpperCase().padStart(4, "0");
+    $("#i-set").textContent = setOf(ch); $("#i-n").textContent = `${T.reduce((a, b) => a + b, 0)} / 45`;
+    const bm = BITMAPS[ch], hasAsc = /#/.test(bm[0] + bm[1]), hasDesc = /#/.test(bm[7] + bm[8]);
+    $("#i-rows").textContent = [hasAsc ? "cap/asc" : "x-height", hasDesc ? "descender" : ""].filter(Boolean).join(" · ");
+    if (reduce) { R.set(T); draw(); } else if (!raf) raf = requestAnimationFrame(step);
+  }
+  return { show, draw };
+})();
+(function () {
+  const box = $("#gset");
+  Object.keys(BITMAPS).filter((c) => c !== " " && c !== " ").forEach((c) => {
+    const b = document.createElement("button"); b.type = "button"; b.textContent = c; b.dataset.ch = c;
+    b.setAttribute("aria-label", "U+" + c.codePointAt(0).toString(16).toUpperCase().padStart(4, "0"));
+    b.setAttribute("aria-pressed", String(c === "g"));
+    const pick = () => { $$("#gset [aria-pressed=true]").forEach((x) => x.setAttribute("aria-pressed", "false")); b.setAttribute("aria-pressed", "true"); insp.show(c); };
+    b.addEventListener("click", pick); b.addEventListener("pointerenter", (e) => { if (e.pointerType === "mouse") insp.show(c); });
+    box.appendChild(b);
+  });
+  box.addEventListener("pointerleave", () => { const sel = $("#gset [aria-pressed=true]"); if (sel) insp.show(sel.dataset.ch); });
+  $$("#g-filter .chip").forEach((c) => c.addEventListener("click", () => {
+    $$("#g-filter .chip").forEach((x) => x.setAttribute("aria-pressed", String(x === c)));
+    const f = c.dataset.f; let n = 0;
+    $$("#gset button").forEach((b) => { b.hidden = !(f === "all" || SETS[f](b.dataset.ch)); n += !b.hidden; });
+    $("#g-count").textContent = `${n} shown`;
+  }));
+})();
+
+/* ── board ───────────────────── */
+const board = (() => {
+  const face = $("#face"), N = 20, ROWS = 6;
+  let mode = "clock", msg = "", lastMin = -1;
+  const cities = [["SHANGHAI", "Asia/Shanghai"], ["TOKYO", "Asia/Tokyo"], ["ZURICH", "Europe/Zurich"], ["NEW YORK CITY", "America/New_York"], ["LOS ANGELES", "America/Los_Angeles"], ["HAWAII", "Pacific/Honolulu"]];
+  const pad = (s) => (s + " ".repeat(N)).slice(0, N);
+  function lines() {
+    const now = new Date();
+    if (mode === "clock") return cities.map(([c, tz]) => {
+      let t; try { t = new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: tz }).format(now); } catch (e) { t = "--:--"; }
+      return pad(`${t} ${c}`);
+    });
+    if (mode === "dep") {
+      const base = now.getHours() * 60 + now.getMinutes() + 4, p = (n) => String(n).padStart(2, "0");
+      const rows = [["ZURICH HB", "7"], ["BERN", "12"], ["GENEVE AIRPORT", "4"], ["BASEL SBB", "9"], ["LUGANO", "14"]];
+      return [pad("TIME  TO           PL"), ...rows.map(([d, pl], i) => { const m = (base + i * 11) % 1440; const l = `${p((m / 60) | 0)}:${p(m % 60)} ${d}`; return l + " ".repeat(Math.max(1, N - l.length - pl.length)) + pl; })].map(pad);
+    }
+    const words = (msg || "TYPE A MESSAGE BELOW").split(/\s+/), out = [];
+    let line = "";
+    for (const w of words) { if ((line + (line ? " " : "") + w).length > N) { if (line) out.push(line); line = w.slice(0, N); } else line += (line ? " " : "") + w; }
+    if (line) out.push(line);
+    const top = Math.max(0, Math.floor((ROWS - out.length) / 2));
+    return Array.from({ length: ROWS }, (_, i) => pad(out[i - top] ?? ""));
+  }
+  function size() {
+    const wpx = Math.min(face.parentElement.clientWidth - 32, 1400);
+    face.style.fontSize = clamp(Math.floor(wpx / (N * 0.6 + 0.2) / 10) * 10, 10, 70) + "px";
+  }
+  function show(all) { roll(face, lines(), all ? { stagger: 30, lineLag: 55, min: 6, max: 14, tick: 42 } : { onlyChanged: true, stagger: 30, min: 6, max: 10, tick: 42 }); }
+  face.innerHTML = Array.from({ length: ROWS }, () => `<span class="ln">${" ".repeat(N)}</span>`).join("");
+  size();
+  let seen = false;
+  new IntersectionObserver((es) => { if (es[0].isIntersecting && !seen) { seen = true; show(true); } }, { threshold: 0.35 }).observe(face);
+  setTimeout(() => { if (!seen) { $$(".ln", face).forEach((l, i) => { l.textContent = lines()[i]; }); } }, 0);
+  setInterval(() => { const m = new Date().getMinutes(); if (m !== lastMin) { if (lastMin !== -1 && mode !== "msg") show(false); lastMin = m; } }, 1000);
+  $("#boardbox").addEventListener("click", () => show(true));
+  $$("#b-modes .chip[data-m]").forEach((c) => c.addEventListener("click", () => {
+    $$("#b-modes .chip[data-m]").forEach((x) => x.setAttribute("aria-pressed", String(x === c)));
+    mode = c.dataset.m; show(true);
+  }));
+  $("#board-msg").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") { msg = e.target.value.trim(); mode = "msg"; $$("#b-modes .chip[data-m]").forEach((x) => x.setAttribute("aria-pressed", String(x.dataset.m === "msg"))); show(true); }
+  });
+  $("#b-sound").addEventListener("click", (e) => {
+    soundOn = !soundOn; e.currentTarget.setAttribute("aria-pressed", String(soundOn)); e.currentTarget.textContent = soundOn ? "Sound on" : "Sound off";
+    if (soundOn && !audio) { try { audio = new (window.AudioContext || window.webkitAudioContext)(); } catch (err) { soundOn = false; } }
+    if (soundOn) { audio.resume?.(); show(true); }
+  });
+  return { size };
+})();
+
+/* ── tester ───────────────────── */
+const tester = (() => {
+  const a = $("#t-area"), tw = $("#t-w"), tr = $("#t-r"), ts = $("#t-s"), latBtn = $("#t-lat");
+  let latOn = true;
+  function paint() { if (latOn) setLat(a, +tw.value, +tr.value, tok("--off")); else a.style.setProperty("--lat", "none"); }
+  function apply() {
+    const w = +tw.value, r = +tr.value, s = +ts.value;
+    a.style.setProperty("--w", w); a.style.setProperty("--r", r); a.style.fontSize = s + "px";
+    $("#o-w").textContent = w; $("#o-r").textContent = r; $("#o-s").textContent = s + "px";
+    $("#t-css").textContent = `font-variation-settings: "wght" ${w}, "ROND" ${r};`;
+    paint();
+  }
+  [tw, tr, ts].forEach((el) => el.addEventListener("input", apply));
+  latBtn.addEventListener("click", () => { latOn = !latOn; latBtn.setAttribute("aria-pressed", String(latOn)); latBtn.textContent = latOn ? "Lattice on" : "Lattice off"; paint(); });
+  $$("#t-samples .chip").forEach((c) => c.addEventListener("click", () => { a.value = c.dataset.s; }));
+  $("#t-copy").addEventListener("click", () => {
+    const m = $("#t-msg"), text = `font-family: "Punctum";\nline-height: 1;\n${$("#t-css").textContent}`;
+    const fb = () => { const s = getSelection(), rg = document.createRange(); rg.selectNodeContents($("#t-css")); s.removeAllRanges(); s.addRange(rg); m.textContent = "Selected · press ⌘C"; };
+    try { navigator.clipboard.writeText(text).then(() => { m.textContent = "Copied"; }, fb); } catch (e) { fb(); }
+  });
+  if (innerWidth < 560) ts.value = 40;
+  apply();
+  return { paint };
+})();
+
+/* ── headings roll in as they arrive ───────────────────── */
+(function () {
+  const io = new IntersectionObserver((es) => es.forEach((e) => {
+    if (!e.isIntersecting) return; io.unobserve(e.target);
+    roll(e.target, null, { stagger: 34, lineLag: 90, min: 6, max: 13, tick: 40 });
+  }), { threshold: 0.5 });
+  $$("[data-flap]").forEach((el) => io.observe(el));
+  const fb = $("#fbig");
+  fb.addEventListener("pointerenter", () => roll(fb, null, { stagger: 40, min: 4, max: 9, tick: 36 }));
+})();
+
+/* ── nav scrollspy ───────────────────── */
+(function () {
+  const links = $$(".nav ul a"), map = new Map(links.map((a) => [a.getAttribute("href").slice(1), a]));
+  const ids = ["idea", "system", "axes", "glyphs", "board", "tester", "use", "info"];
+  const io = new IntersectionObserver((es) => es.forEach((e) => {
+    if (e.isIntersecting) { links.forEach((a) => a.setAttribute("aria-current", "false")); map.get(e.target.id)?.setAttribute("aria-current", "true"); }
+  }), { rootMargin: "-45% 0px -50% 0px" });
+  ids.forEach((id) => { const s = document.getElementById(id); if (s) io.observe(s); });
+})();
+
+/* ── boot & theme ───────────────────── */
+function relayout() { fitAll(); drawMetrics(); board.size(); hero.layout(); paintLattices(); insp.draw(); }
+function retheme() { hero.colors(); paintLattices(); insp.draw(); }
+let rz; addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(relayout, 120); });
+matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", retheme);
+new MutationObserver(retheme).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+fitAll(); drawMetrics(); paintLattices(); insp.show("g");
+document.fonts.ready.then(() => { relayout(); });
+</script>
